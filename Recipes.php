@@ -1,5 +1,11 @@
+<?php
+$db = require'db.php';
+$category_id = '>=1';
+$category_id = $_GET['category_choice']??'>=1';
+$tasty = $db->query("SELECT recipes.id, recipes.name, recipes.serving_size, recipes.category_id, recipes.preparation_time, recipes.coocking_time, categories.category FROM recipes INNER JOIN categories ON recipes.category_id=categories.id WHERE recipes.category_id{$category_id}")->fetchAll(PDO::FETCH_ASSOC);
+$categories = $db->query("SELECT * FROM categories");
 
-
+?>
 <!doctype html>
 <html class="no-js" lang="zxx">
 
@@ -30,10 +36,6 @@
 </head>
 
 <body>
-<!--[if lte IE 9]>
-<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
-<![endif]-->
-
 <!-- header-start -->
 <header>
     <div class="header-area ">
@@ -53,7 +55,7 @@
                                 <ul id="navigation">
                                     <li><a href="index.html">home</a></li>
                                     <li><a href="about.html">about</a></li>
-                                    <li><a href="Recipes.html">Recipes</a></li>
+                                    <li><a href="Recipes.php">Recipes</a></li>
                                     <li><a href="#">blog <i class="ti-angle-down"></i></a>
                                         <ul class="submenu">
                                             <li><a href="blog.html">blog</a></li>
@@ -62,11 +64,20 @@
                                     </li>
                                     <li><a href="#">pages <i class="ti-angle-down"></i></a>
                                         <ul class="submenu">
-                                            <li><a href="recipes_details.html">Recipes Details</a></li>
+                                            <li><a href="recipes_details.php">Recipes Details</a></li>
                                             <li><a href="elements.html">elements</a></li>
                                         </ul>
                                     </li>
                                     <li><a href="contact.html">Contact</a></li>
+                                    <li><form action="Recipes.php" method="get" class="submenuForm">
+                                        <select name="category_choice">
+                                            <option value=">=1">All</option>
+                                            <?php foreach($categories as $category):?>
+                                            <option value='=<?=$category['id']?>'><?=$category['category']?></option>
+                                            <? endforeach; ?>
+                                        </select>
+                                            <button type="submit">sort</button>
+                                        </form></li>
                                 </ul>
                             </nav>
                         </div>
@@ -108,25 +119,21 @@
     <div class="container">
         <div class="row">
             <?php
-
-            $db = require $_SERVER['DOCUMENT_ROOT'].'/db.php';
-
-            $tasty = $db->query("SELECT * FROM recipes")->fetchAll(PDO::FETCH_ASSOC);
             foreach ($tasty as $item):
-            ?>
-            <div class="col-xl-4 col-lg-4 col-md-6">
-                <div class="single_recepie text-center">
-                    <div class="recepie_thumb">
-                        <img src="img/recepie/recpie_<?= $item['id']?>.jpg" alt="">
+                ?>
+                <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="single_recepie text-center">
+                        <div class="recepie_thumb">
+                            <img src="img/recepie/recpie_<?= $item['id']?>.jpg" alt="">
+                        </div>
+                        <h3><?= $item['name']?></h3>
+                        <span style="font-size: large"><?= $item['category']?></span>
+                        <p>Serving size: <?= $item['serving_size']?> </p>
+                        <p>Preparation time: <?= $item['preparation_time']?></p>
+                        <p>Coocking time: <?= $item['coocking_time']?> </p>
+                        <a href="recipes_details.php?id=<?=$item['id']?>" class="line_btn">View Full Recipe</a>
                     </div>
-                    <h3><?= $item['name']?></h3>
-                    <span><?= $item['category_id']?></span>
-                    <p>Serving size: <?= $item['serving_size']?> </p>
-                    <p>Preparation time: <?= $item['preparation_time']?></p>
-                    <p>Coocking time: <?= $item['coocking_time']?> </p>
-                    <a href="#" class="line_btn">View Full Recipe</a>
                 </div>
-            </div>
             <?php endforeach; ?>
         </div>
     </div>
@@ -349,6 +356,3 @@
 </body>
 
 </html>
-
-
-
